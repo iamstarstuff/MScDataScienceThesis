@@ -1,47 +1,30 @@
-name: Compile and Publish LaTeX
-
-on:
-  push:
-    branches:
-      - main
-
+name: build
+on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
     env:
+      # Edit here with the names of your latex file and directory (can use ".")
       DIR: .
       FILE: main
     steps:
-      - name: Checkout Repository
+      - name: Set up Git repository
         uses: actions/checkout@v2
-
-      - name: Set up TeX Live
-        uses: xu-cheng/latex-action@v2
-          with:
-            root_file: ${{ env.FILE }}
-            working_directory: ${{ env.DIR }}
-            compiler: lualatex
-
       - name: Update TeX Live
-        run: sudo tlmgr update --self --all
-      
-      - name: Rebuild Font Cache
-        run: luaotfload-tool --update
-            
+          run: sudo tlmgr update --self --all
+      - name: main
+        uses: xu-cheng/latex-action@latest
+        with:
+          root_file: ${{ env.FILE }}
+          working_directory: ${{ env.DIR }}
+          compiler: lualatex
       - name: move
         run: mkdir -p github_artifacts && mv ${{ env.DIR }}/${{ env.FILE }}.pdf ./github_artifacts/
-
-      - name: Compile LaTeX
-          run: lualatex ${{ env.FILE }}.tex
-
       - name: Upload pdf as artifact
         uses: actions/upload-artifact@v2
         with:
           name: ${{ env.FILE }}.pdf
-          path: ${{ env.DIR }}
-
-      
-
+          path: ./github_artifacts
   deploy:
     needs: [build]
     runs-on: ubuntu-latest
@@ -57,7 +40,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .
+          publish_dir: ./github_deploy
           publish_branch: build
           force_orphan: true
           enable_jekyll: true
