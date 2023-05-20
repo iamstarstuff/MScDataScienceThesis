@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
 
 jobs:
   build:
@@ -28,24 +27,20 @@ jobs:
       
       - name: Rebuild Font Cache
         run: luaotfload-tool --update
-      
-      - name: Clean Temporary Files
-        run: |
-          rm -f *.aux
-          rm -f *.log
-          rm -f *.pdf
-
             
       - name: move
         run: mkdir -p github_artifacts && mv ${{ env.DIR }}/${{ env.FILE }}.pdf ./github_artifacts/
+
+      - name: Compile LaTeX
+          run: lualatex ${{ env.FILE }}.tex
+
       - name: Upload pdf as artifact
         uses: actions/upload-artifact@v2
         with:
           name: ${{ env.FILE }}.pdf
-          path: ./github_artifacts
+          path: ${{ env.DIR }}
 
-      - name: Compile LaTeX
-        run: lualatex main.tex
+      
 
   deploy:
     needs: [build]
@@ -62,7 +57,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./github_deploy
+          publish_dir: .
           publish_branch: build
           force_orphan: true
           enable_jekyll: true
