@@ -9,7 +9,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    env:
+      DIR: .
+      FILE: main
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -17,27 +19,50 @@ jobs:
       - name: Set up TeX Live
         uses: xu-cheng/latex-action@v2
           with:
+            root_file: ${{ env.FILE }}
+            working_directory: ${{ env.DIR }}
             compiler: lualatex
-            root_file: main.tex
 
       - name: Update TeX Live
         run: sudo tlmgr update --self --all
-
+      
       - name: Rebuild Font Cache
         run: luaotfload-tool --update
-
+      
       - name: Clean Temporary Files
         run: |
           rm -f *.aux
           rm -f *.log
           rm -f *.pdf
 
+            
+      - name: move
+        run: mkdir -p github_artifacts && mv ${{ env.DIR }}/${{ env.FILE }}.pdf ./github_artifacts/
+      - name: Upload pdf as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.FILE }}.pdf
+          path: ./github_artifacts
+
       - name: Compile LaTeX
         run: lualatex main.tex
 
-      - name: Publish PDF Artifact
+  deploy:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - uses: actions/download-artifact@v2
+        with:
+          path: github_artifacts
+      - name: move
+        run: mkdir -p github_deploy && mv github_artifacts/*/* github_deploy
+      - name: deploy on orphan branch
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .
-          publish_branch: gh-pages
+          publish_dir: ./github_deploy
+          publish_branch: build
+          force_orphan: true
+          enable_jekyll: true
