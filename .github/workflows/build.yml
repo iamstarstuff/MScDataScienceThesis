@@ -16,6 +16,9 @@ jobs:
 
       - name: Set up TeX Live
         uses: xu-cheng/latex-action@v2
+          with:
+            compiler: lualatex
+            root_file: main.tex
 
       - name: Update TeX Live
         run: sudo tlmgr update --self --all
@@ -32,9 +35,8 @@ jobs:
       - name: Compile LaTeX
         run: lualatex main.tex
 
-      - name: Create PDF Artifact
+      - name: Publish PDF
         uses: actions/upload-artifact@v2
         with:
-          name: dissertation-pdf
-          path: main.pdf
-
+          name: main.pdf
+          path: ${{ github.workspace }}/artifacts/
