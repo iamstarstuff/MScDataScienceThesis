@@ -1,4 +1,4 @@
-name: Compile LaTeX
+name: Compile and Publish LaTeX
 
 on:
   push:
@@ -35,8 +35,9 @@ jobs:
       - name: Compile LaTeX
         run: lualatex main.tex
 
-      - name: Publish PDF
-        uses: actions/upload-artifact@v2
+      - name: Publish PDF Artifact
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          name: main.pdf
-          path: ${{ github.workspace }}/artifacts/
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
+          publish_branch: gh-pages
