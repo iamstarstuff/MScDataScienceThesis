@@ -19,9 +19,8 @@ jobs:
           compiler: lualatex
           extra_font_packages: "fontspec"
           args: |
-            - pdf
-            - latexoption=-file-line-error
-            - latexoption=-interaction=nonstopmode 
+            -latexoption=-file-line-error
+            -latexoption=-interaction=nonstopmode 
       - name: move
         run: mkdir -p github_artifacts && mv ${{ env.DIR }}/${{ env.FILE }}.pdf ./github_artifacts/
       - name: Upload pdf as artifact
