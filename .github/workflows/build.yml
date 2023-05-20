@@ -1,49 +1,30 @@
+name: Build and Publish PDF
 
-name: build
-on: [push]
+on:
+  push:
+    branches:
+      - main
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      # Edit here with the names of your latex file and directory (can use ".")
-      DIR: .
-      FILE: main
+
     steps:
-      - name: Set up Git repository
+      - name: Checkout repository
         uses: actions/checkout@v2
-      - name: main
-        uses: dante-ev/latex-action@latest
+
+      - name: Set up LaTeX
+        uses: dante-ev/latex-action@v2
         with:
-          root_file: ${{ env.FILE }}
-          working_directory: ${{ env.DIR }}
           compiler: lualatex
-          extra_font_packages: "fontspec"
-          args: |
-            -latexoption=-file-line-error
-            -latexoption=-interaction=nonstopmode 
-      - name: move
-        run: mkdir -p github_artifacts && mv ${{ env.DIR }}/${{ env.FILE }}.pdf ./github_artifacts/
-      - name: Upload pdf as artifact
-        uses: actions/upload-artifact@v2
+          root_file: main.tex
+
+      - name: Move PDF to artifacts
+        run: mv main.pdf ${{ github.workspace }}/artifacts/
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@4.1.1
         with:
-          name: ${{ env.FILE }}.pdf
-          path: ./github_artifacts
-  deploy:
-    needs: [build]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - uses: actions/download-artifact@v2
-        with:
-          path: github_artifacts
-      - name: move
-        run: mkdir -p github_deploy && mv github_artifacts/*/* github_deploy
-      - name: deploy on orphan branch
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./github_deploy
-          publish_branch: build
-          force_orphan: true
-          enable_jekyll: true
+          branch: gh-pages
+          folder: artifacts
+
