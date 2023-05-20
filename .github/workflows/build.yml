@@ -1,30 +1,40 @@
-name: Build and Publish PDF
+name: Compile LaTeX
 
 on:
   push:
     branches:
       - main
+  pull_request:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Set up LaTeX
+      - name: Set up TeX Live
         uses: xu-cheng/latex-action@v2
-        with:
-          compiler: lualatex
-          root_file: main.tex
 
-      - name: Move PDF to artifacts
-        run: mv main.pdf ${{ github.workspace }}/artifacts/
+      - name: Update TeX Live
+        run: sudo tlmgr update --self --all
 
-      - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@4.1.1
+      - name: Rebuild Font Cache
+        run: luaotfload-tool --update
+
+      - name: Clean Temporary Files
+        run: |
+          rm -f *.aux
+          rm -f *.log
+          rm -f *.pdf
+
+      - name: Compile LaTeX
+        run: lualatex main.tex
+
+      - name: Create PDF Artifact
+        uses: actions/upload-artifact@v2
         with:
-          branch: gh-pages
-          folder: artifacts
+          name: dissertation-pdf
+          path: main.pdf
 
