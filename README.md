@@ -1,3 +1,3 @@
-# dissertationstatus
+# Timeline
 
-[View the Project timeline](https://iamstarstuff.github.io/dissertationstatus/)
+[View the Project timeline](https://iamstarstuff.github.io/MScDataScienceThesis/)
