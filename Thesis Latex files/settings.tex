@@ -1,0 +1,68 @@
+\documentclass[12pt]{report}
+\usepackage{geometry}
+\usepackage[affil-it]{authblk}
+\geometry{
+ a4paper,
+ total={170mm,257mm},
+ left=20mm,
+ top=20mm,
+ bindingoffset=5mm
+ }
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage[colorlinks=true,citecolor=blue, linkcolor=blue]{hyperref}
+\usepackage[comma]{natbib}
+\usepackage{setspace}
+\linespread{1.25}
+\bibliographystyle{agsm}
+\usepackage{fontspec}
+\usepackage{graphicx}
+\usepackage{float}
+\setmainfont{Times New Roman}
+\usepackage{fancyhdr}
+\setlength{\headheight}{14.49998pt}
+\addtolength{\topmargin}{-2.49998pt}
+%\setlength{\parindent}{30pt}
+
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Define colors for the syntax highlighting
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{1,1,0.9}
+\definecolor{blue}{rgb}{0,0,1} % Define the missing color
+
+% Define the code style
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{codepurple},
+    numberstyle=\tiny\color{codegray}, % Referencing the defined color here
+    stringstyle=\color{blue},
+    basicstyle=\ttfamily\small,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+% Set the code style
+\lstset{style=mystyle}
+
+
+\usepackage{tocloft}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{array}
+\usepackage{amsmath}
+\usepackage{subcaption}
+\usepackage{lscape}
+\usepackage{titletoc}

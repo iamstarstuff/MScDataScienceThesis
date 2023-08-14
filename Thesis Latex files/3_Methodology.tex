@@ -1,0 +1,57 @@
+\chapter{Methodology}
+This chapter will discuss on the process that was followed during the research i.e., the road-map for the research. The overall research design is experimental. Final aim is to determine the performance of using genetic algorithms to tune hyperparameters of the model and if we are able to obtain better metrics than default hyperparameters. Genetic algorithms can become computationally expensive if the hyperparameter space is large so some trial and error might be required to determine the feasibility of running genetic algorithm on large hyperparameter space.
+
+\section{Data Collection}
+
+The first step is to obtain the dataset from the skyserver service provided by the SDSS consortium \citep{SDSSDR18}. The data is publicly available through the CAS and skyserver service provide by the SDSS consortium. Through the SQL search service \citep{SkyserverSDSS}, I downloaded the top 500 thousand results with columns and filters recommended by SDSS.
+
+\begin{lstlisting}[language=SQL, caption = {SQL query to download data from SDSS Skyserver}, label = {lst:sqlquery}]
+SELECT TOP 500000
+p.objid,p.ra,p.dec,p.u,p.g,p.r,p.i,p.z,
+p.run, p.rerun, p.camcol, p.field,
+s.specobjid, s.class, s.z as redshift,
+s.plate, s.mjd, s.fiberid
+FROM PhotoObj AS p
+JOIN SpecObj AS s ON s.bestobjid = p.objid
+WHERE 
+  p.u BETWEEN 0 AND 19.6
+  AND g BETWEEN 0 AND 20
+\end{lstlisting}
+
+The TOP 500k results were taken so that the dataset can reflect the real distribution count of astronomical objects. The class imbalance in the dataset orginates from the fact that there are approximately 4 times more galaxies than stars and 6 times more than quasars \citep{Clarke2020}. The dataset is available in multiple formats, of which \textit{.csv} was chosen for the ease of importing it as Pandas dataframe object in Python using the Pandas library.
+
+\section{Preprocessing and feature selection} 
+
+The preprocessing of data will require some cleaning, handling missing values if any, feature normalisation or scaling using standard functions like StandardNormalScaler or MinMaxScaler from sklearn package. StandardScaler standardizes features by removing the mean and scaling them to unit variance. This means that after applying StandardScaler, the transformed features will have a mean of 0 and a standard deviation of 1. This scaling can be particularly useful when features have different units or different scales. MinMaxScaler scales features to a specific range, usually between 0 and 1. It linearly transforms the feature values such that the minimum value becomes 0 and the maximum value becomes 1. It's particularly useful when you want to maintain the original distribution of the data but scale it within a certain range. Principal Component Analysis (PCA) can also be performed to reduce the feature space and increase training speeds. 
+
+The next step is to split the dataset into training, testing and validation sets, ensuring that the class distribution is maintained in all sets. For this purpose a custom function will be created which utilises the \textit{train\_test\_split( )} function from sklearn library. The \textit{train\_test\_split( )} function takes split ratio as it's input parameter and splits the dataset into two parts. The custom function will take in 2 values of split ratios and split the dataset into 3 parts namely training set, testing set and validation set. In our case, of the total 500k rows, 300k will be used for training, 100k will be used for testing and the other 100k will be unseen data by the model which will be used for validation.
+
+The selection of features can be based on a correlation matrix. There is a distinct spectral signature associated with each class of astronomical object. In the SDSS dataset, the u, g, r, i, and z columns represent different filters that are used to observe astronomical objects at specific wavelength ranges. The values in these columns correspond to the magnitudes of the objects in those bands. In telescopes, magnitude refers to a logarithmic measurement of brightness within a given band, and it is used to quantify the amount of light that reaches the telescope through each of its filters. Therefore, we can state that the values of these columns originate from the physical properties of astronomical objects, hence, they are correlated with the object class.
+
+
+\section{Establish baseline performance}
+
+Before implementing genetic algorithm to optimise hyperparameters of models it is important to establish the baseline performance of the models using the default hyperparameters. For this thesis, I have selected 3 machine learning models which are widely used in machine learning classification tasks - Random Forest Classifiers, Gradient Boosting Classifiers and Logistic Regression Classifiers. These models were selected based on work done by \cite{Wierzbiński} and \cite{Clarke2020}.
+
+Using the default parameters the models will be trained and the performance will be evaluated using the standard evaluation metrics such as accuracy, precision, recall and F1-score. These metrics will be saved for comparison with models trained after optimising hyperparameters.
+
+\section{Implementing Genetic Algorithms}
+
+Sklearn has a module named \textit{sklearn-genetic-opt} which will be used to implement genetic algorithms in tuning hyperparameters. The functions from this library seamlessly integrate with machine learning models in sklearn library.
+
+\begin{enumerate}
+  \item Define the Hyperparameter Space: Determine the range or set of possible values for each hyperparameter that needs  to be tuned in scikit-learn algorithms. It is important to set a hyperparameter space because of limited computing resources.
+  
+  \item Define the Fitness Function: Create a fitness function that evaluates the performance of a model with a specific set of hyperparameters. The fitness function should interface with scikit-learn by training and evaluating the model on the desired dataset. We will be using accuracy score as our fitness function.
+  
+  \item Set Up the Genetic Algorithm: Use sklearn-genetic-opt to set up the genetic algorithm by defining the population, genetic operators (crossover and mutation), selection mechanisms, and termination criteria.
+  
+  \item Integrate with scikit-learn: Within the genetic algorithm framework, sklearn will be used to train and evaluate the models with different hyperparameter settings based on the genetic algorithm's suggestions.
+  
+  
+  \item Retrieve the Best Hyperparameters: Once the genetic algorithm completes, the best hyperparameters can be extracted from the fittest individual(s) and then can be used to train the final model on the full dataset.
+\end{enumerate}
+
+\section{Evaluate results}
+
+Using the metrics from models trained using default hyperparamters and genetically optimised hyperparameters, draw conclusions as to which technique works best for our purpose.
