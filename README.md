@@ -9,3 +9,5 @@ The 2 main notebooks are:
 
 - [Exploratory Data Analysis (EDA)](EDA.ipynb)
 - [Final compiled notebook of machine learning models and Genetic algorithm implementation](Final_compiled.ipynb)
+
+The main thesis document can be found here - [Pratik - Dissertation.pdf](<Pratik - Dissertation.pdf>)
